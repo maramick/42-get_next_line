@@ -40,6 +40,11 @@ char	*read_line(int fd, t_list *lst)
 	if (buf == NULL)
 		return (NULL);
 	line_read = ft_strdup(lst->backup);
+	if (line_read == NULL)
+	{
+		free(buf);
+		return (NULL);
+	}
 	while(read_buf > 0 && check == 0)
 	{
 		read_buf = read(fd, buf, BUFFER_SIZE);
@@ -69,9 +74,6 @@ char	*get_line(int fd, t_list *lst)
 	if (lst->backup == NULL)
 		lst->backup = strdup("");
 	line = read_line(fd, lst);
-	printf("line : %s\n", line);
-	printf("backup : %s\n", lst->backup);
-	printf("id : %d\n", lst->lst_id);
 	return	(line);
 }
 
