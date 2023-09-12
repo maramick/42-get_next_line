@@ -1,5 +1,26 @@
 #include "get_next_line.h"
 
+char	*ft_strdup(const char *s)
+{
+	char	*dup;
+	size_t	s_len;
+	size_t	i;
+
+	i = 0;
+	if (s == NULL)
+		return (NULL);
+	s_len = ft_strlen(s);
+	dup = (char *)malloc((s_len * sizeof(char)) + 1);
+	if (dup == NULL)
+		return (NULL);
+	while (s[i] != '\0')
+	{
+		dup[i] = s[i];
+		i++;
+	}
+	dup[i] = '\0';
+	return (dup);
+}
 //We should remove this function//
 void	*ft_memmove(void *dst, const void *src, size_t len)
 {

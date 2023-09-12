@@ -1,25 +1,5 @@
 #include "./get_next_line.h"
 
-char	*ft_strdup(const char *s)
-{
-	char	*dup;
-	size_t	s_len;
-	size_t	i;
-
-	i = 0;
-	s_len = ft_strlen(s);
-	dup = (char *)malloc((s_len * sizeof(char)) + 1);
-	if (dup == NULL)
-		return (NULL);
-	while (s[i] != '\0')
-	{
-		dup[i] = s[i];
-		i++;
-	}
-	dup[i] = '\0';
-	return (dup);
-}
-
 //We should check if
 //read data have '\n' or '\0' in string
 //if have '\n'
@@ -39,6 +19,7 @@ char	*read_line(int fd, t_list *lst)
 	buf = (char *)malloc(BUFFER_SIZE * sizeof(char));
 	if (buf == NULL)
 		return (NULL);
+	printf("starter backup = %s\n", lst->backup);
 	line_read = ft_strdup(lst->backup);
 	if (line_read == NULL)
 	{
@@ -67,14 +48,50 @@ char	*read_line(int fd, t_list *lst)
 	return (line_read);
 }
 
+char	*extract_string(char *line, t_list *lst)
+{
+	char	*line_temp;
+	int		i;
+
+	i = 0;
+
+	while (line[i] != '\0' && line[i] != '\n')
+	{
+		i++;
+	}
+	line_temp = (char *)malloc((i + 1 + (line[i] != '\n')) * sizeof(char));
+	if (line_temp == NULL)
+		return (NULL);
+	i = 0;
+	while (line[i] != '\0' && line[i] != '\n')
+	{
+		line_temp[i] = line[i];
+		printf("copying : %s\n", line_temp);
+		i++;
+	}
+	if (line[i] == '\n')
+		line_temp[i++] = '\n';
+	lst->backup = ft_strdup(line + i);
+	printf("backup : %s\n\n", lst->backup);
+	line_temp[i] = '\0';
+	free(line);
+	return (line_temp);
+}
+
 char	*get_line(int fd, t_list *lst)
 {
 	char	*line;
+	char	*new_line;
 
 	if (lst->backup == NULL)
 		lst->backup = strdup("");
 	line = read_line(fd, lst);
-	return	(line);
+	if (line == NULL)
+		return (NULL);
+	new_line = extract_string(line, lst);
+	if (new_line == NULL)
+		return (NULL);
+	return	(new_line);
 }
 
 char	*get_next_line(int fd)
@@ -92,6 +109,8 @@ char	*get_next_line(int fd)
 		if (current->lst_id == fd)
 		{
 			new_line = get_line(fd, lst);
+			if (new_line == NULL)
+				return (NULL);
 			return (new_line);
 		}
 		current = current->next;
@@ -101,6 +120,8 @@ char	*get_next_line(int fd)
 	if (!new_node)
 		return (NULL);
 	new_line = get_line(fd, lst);
+	if (new_line == NULL)
+		return (NULL);
 	return new_line;
 }
 
@@ -114,6 +135,7 @@ int	main(void)
 	int		fd2;
 	int		fd3;
 	int		fd4;
+	char	*save;
 
 	fd1 = open(fileName1, O_RDONLY);
 	if (fd1 == -1)
@@ -131,7 +153,16 @@ int	main(void)
 	printf("%d\n", fd1);
 	printf("%d\n", fd2);
 	printf("%d\n", fd3);
-	get_next_line(fd1);
+	save = get_next_line(fd1);
+	printf("result : %s" , save);
+	free(save);
+	save = get_next_line(fd1);
+	printf("result : %s" , save);
+	free(save);
+	save = get_next_line(fd1);
+	printf("result : %s" , save);
+	free(save);
+
 	// get_next_line(fd2);
 	// get_next_line(fd3);
 	// get_next_line(fd1);
