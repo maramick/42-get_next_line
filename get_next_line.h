@@ -8,20 +8,21 @@
 #include <stdio.h>
 #include <string.h>
 
-#define BUFFER_SIZE 10
+#define BUFFER_SIZE 3
 
 typedef struct		s_list
 {
-	char			*content;
+	char			*backup;
 	int				lst_id;
 	struct s_list	*next;
 }					t_list;
 
-t_list	*ft_newnode(t_list **lst, int fd);
 char	*get_next_line(int fd);
-size_t	ft_strlen(const char *s);
 void	*ft_memmove(void *dst, const void *src, size_t len);
+size_t	ft_strlen(const char *s);
+char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_strchr(const char *s, int c);
-
+t_list	*ft_newnode(t_list **lst, int fd);
+char	*ft_strdup(const char *s);
 
 #endif
