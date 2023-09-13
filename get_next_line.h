@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define BUFFER_SIZE 3
+//#define BUFFER_SIZE 42
 
 typedef struct		s_list
 {
@@ -18,7 +18,6 @@ typedef struct		s_list
 }					t_list;
 
 char	*get_next_line(int fd);
-void	*ft_memmove(void *dst, const void *src, size_t len);
 size_t	ft_strlen(const char *s);
 char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_strchr(const char *s, int c);

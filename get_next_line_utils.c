@@ -22,30 +22,6 @@ char	*ft_strdup(const char *s)
 	return (dup);
 }
 //We should remove this function//
-void	*ft_memmove(void *dst, const void *src, size_t len)
-{
-	char		*cvt_dst;
-	const char	*cvt_src;
-
-	cvt_src = (const char *)src;
-	cvt_dst = (char *)dst;
-	if (dst == NULL && src == NULL)
-		return (NULL);
-	if (dst > src && dst < src + len)
-	{
-		cvt_src = cvt_src + len;
-		cvt_dst = cvt_dst + len;
-		while (len-- > 0)
-			*(--cvt_dst) = *(--cvt_src);
-	}
-	else
-	{
-		while (len-- > 0)
-			*(cvt_dst++) = *(cvt_src++);
-	}
-	return (dst);
-}
-
 size_t	ft_strlen(const char *s)
 {
 	size_t	count;
@@ -61,29 +37,30 @@ size_t	ft_strlen(const char *s)
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {
-	char		*temp;
-	size_t		size_s1;
-	size_t		size_s2;
-	char const	*s;
+	int		sizetotal;
+	char	*res;
+	int		i;
+	int		j;
 
-	if (s1 == NULL && s2 == NULL)
+	i = 0;
+	sizetotal = ft_strlen(s1) + ft_strlen(s2);
+	res = (char *)malloc(sizeof(char) * (sizetotal + 1));
+	if (!res || !s1 || !s2)
 		return (NULL);
-	if (s1 != NULL && s2 != NULL)
+	while (s1[i] != 0)
 	{
-		size_s1 = ft_strlen(s1);
-		size_s2 = ft_strlen(s2);
-		temp = (char *)malloc(((size_s1) + (size_s2) + 1));
-		if (temp == NULL)
-			return (NULL);
-		ft_memmove(temp, s1, size_s1);
-		ft_memmove(temp + size_s1, s2, size_s2);
-		temp[size_s1 + size_s2] = '\0';
-		return (temp);
+		res[i] = s1[i];
+		i++;
 	}
-	temp = ft_strdup(s);
-	if (temp == NULL)
-		return (NULL);
-	return (temp);
+	j = 0;
+	while (s2[j] != 0)
+	{
+		res[i] = s2[j];
+		i++;
+		j++;
+	}
+	res[sizetotal] = 0;
+	return (res);
 }
 
 char	*ft_strchr(const char *s, int c)
