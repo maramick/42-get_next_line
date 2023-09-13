@@ -147,6 +147,7 @@ char	*get_next_line(int fd)
 	new_line = ft_get_line(fd, lst);
 	if (new_line == NULL)
 	{
+		//leak handlie
 		free(lst);
 		return (NULL);
 	}
