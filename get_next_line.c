@@ -27,7 +27,7 @@ char	*ft_extract_string(char *line, t_list *lst)
 	{
 		i++;
 	}
-	line_temp = (char *)malloc((i + 1 + (line[i] != '\n')) * sizeof(char));
+	line_temp = (char *)malloc((i + 1 + (line[i] == '\n')));
 	if (line_temp == NULL)
 		return (NULL);
 	i = 0;
@@ -37,7 +37,10 @@ char	*ft_extract_string(char *line, t_list *lst)
 		i++;
 	}
 	if (line[i] == '\n')
+	{
 		line_temp[i++] = '\n';
+	}
+	//printf("line+1 = %d\n", *(line + i));
 	lst->backup = ft_strdup(line + i);
 	line_temp[i] = '\0';
 	free(line);
@@ -82,6 +85,7 @@ char	*ft_getline(t_list *lst, int fd, char *buf)
 		free(line);
 		free(lst->backup);
 		free(lst);
+		lst = NULL;
 		return (NULL);
 	}
 	free(lst->backup);
@@ -99,14 +103,11 @@ char	*get_next_line(int fd)
 	buf = (char *)malloc(BUFFER_SIZE + 1);
 	if (!buf)
 		return (NULL);
-	// if (lst == NULL)
-	// 	printf("\nYeah NEW node\n");
-	// else if (lst != NULL)
-	// 	printf("\nYeah OLD node\n");
 	while (1)
 	{
 		if (!lst)
 		{
+			//printf("new node\n");
 			lst = ft_newnode(&lst, fd);
 			if (!lst)
 			{
@@ -120,14 +121,24 @@ char	*get_next_line(int fd)
 		lst = lst->next;
 	}
 	return (NULL);
+	//NEW VERSION//
+	// lst = ft_newnode(&lst, fd);
+	// if (!lst)
+	// {
+	// 	free(buf);
+	// 	return (NULL);
+	// }
+	// return (ft_getline(lst, fd, buf));
 }
 
 // int	main(void)
 // {
 // 	char	*file1 = "hello.txt";
 // 	char	*file2 = "empty.txt";
+// 	char	*file3 = "1char.txt";
 // 	int		fd1;
 // 	int		fd2;
+// 	int		fd3;
 
 // 	fd1 = open(file1, O_RDONLY);
 // 	if (fd1 == -1)
@@ -138,9 +149,15 @@ char	*get_next_line(int fd)
 // 		printf("can't open files");
 // 		return (0);
 // 	}
-// 	printf("result : %s\n", get_next_line(fd2));
-// 	printf("result : %s\n", get_next_line(fd2));
-// 	printf("result : %s\n", get_next_line(fd2));
-// 	printf("result : %s\n", get_next_line(fd2));
+// 	fd3 = open(file3, O_RDONLY);
+// 	if (fd3 == -1)
+// 	{
+// 		printf("can't open files");
+// 		return (0);
+// 	}
+// 	printf("result : %s\n", get_next_line(fd3));
+// 	printf("result : %s\n", get_next_line(fd3));
+// 	// printf("result : %s\n", get_next_line(fd2));
+// 	// printf("result : %s\n", get_next_line(fd2));
 // 	return (0);
 // }

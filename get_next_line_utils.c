@@ -69,8 +69,12 @@ char	*ft_strdup(const char *s)
 
 	i = 0;
 	if (s == NULL)
+	{
+	//	printf("here\n");
 		return (NULL);
+	}
 	s_len = ft_strlen(s);
+	//printf("s_len : %zu\n", s_len);
 	dup = (char *)malloc((s_len * sizeof(char)) + 1);
 	if (dup == NULL)
 		return (NULL);
@@ -93,6 +97,6 @@ t_list	*ft_newnode(t_list **lst, int fd)
 	new_node->fd_id = fd;
 	new_node->backup = NULL;
 	new_node->next = *lst;
-	*lst = new_node;
+	//*lst = new_node;
 	return (new_node);
 }
