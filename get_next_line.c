@@ -71,10 +71,12 @@ char	*read_file(char *line, char *buf, int fd)
 	return (line);
 }
 
-char	*ft_getline(t_list *lst, int fd, char *buf)
+char	*ft_getline(t_list **lst_addr, int fd, char *buf)
 {
 	char	*line;
+	t_list	*lst;
 
+	lst = *lst_addr;
 	if (lst->backup == NULL)
 		lst->backup = ft_strdup("");
 	line = ft_strdup(lst->backup);
@@ -85,7 +87,7 @@ char	*ft_getline(t_list *lst, int fd, char *buf)
 		free(line);
 		free(lst->backup);
 		free(lst);
-		lst = NULL;
+		*lst_addr = NULL;
 		return (NULL);
 	}
 	free(lst->backup);
@@ -114,10 +116,14 @@ char	*get_next_line(int fd)
 				free(buf);
 				return (NULL);
 			}
-			return (ft_getline(lst, fd, buf));
+			return (ft_getline(&lst, fd, buf));
 		}
-		if (lst->fd_id == fd)
-			return (ft_getline(lst, fd, buf));
+		if (lst)
+		{
+			if (lst->fd_id == fd)
+				return (ft_getline(&lst, fd, buf));
+		}
+
 		lst = lst->next;
 	}
 	return (NULL);
