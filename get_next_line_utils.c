@@ -23,16 +23,17 @@ char	*ft_strchr(const char *s, int c)
 size_t	ft_strlen(const char *s)
 {
 	size_t	count;
+	int		i;
 
 	count = 0;
-	while (*s != '\0')
+	i = 0;
+	while (s[i] != '\0')
 	{
 		count++;
-		s++;
+		i++;
 	}
 	return (count);
 }
-
 char	*ft_strjoin(char const *s1, char const *s2)
 {
 	int		sizetotal;
@@ -41,9 +42,12 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	int		j;
 
 	i = 0;
+	if (s1 == NULL && s2 == NULL)
+		return (NULL);
 	sizetotal = ft_strlen(s1) + ft_strlen(s2);
+	//printf("\nsize to join total: %d\n", sizetotal);
 	res = (char *)malloc(sizeof(char) * (sizetotal + 1));
-	if (!res || !s1 || !s2)
+	if (res == NULL)
 		return (NULL);
 	while (s1[i] != 0)
 	{
@@ -68,16 +72,14 @@ char	*ft_strdup(const char *s)
 	size_t	i;
 
 	i = 0;
-	if (s == NULL)
-	{
-	//	printf("here\n");
+	if (s == NULL || *s == '\0')
 		return (NULL);
-	}
 	s_len = ft_strlen(s);
 	//printf("s_len : %zu\n", s_len);
 	dup = (char *)malloc((s_len * sizeof(char)) + 1);
 	if (dup == NULL)
 		return (NULL);
+	//printf("DUP_mal: %p\n", dup);
 	while (s[i] != '\0')
 	{
 		dup[i] = s[i];
@@ -97,6 +99,7 @@ t_list	*ft_newnode(t_list **lst, int fd)
 	new_node->fd_id = fd;
 	new_node->backup = NULL;
 	new_node->next = *lst;
+	//printf("LST_mal :%p\n", new_node);
 	//*lst = new_node;
 	return (new_node);
 }

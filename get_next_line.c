@@ -4,16 +4,12 @@ char	*ft_join_string(char *s1, char *s2)
 {
 	char	*temp;
 
-	if (s1 == NULL)
-	{
-		s1 = ft_strdup("");
-		if (!s1)
-			return (NULL);
-	}
 	temp = ft_strjoin(s1, s2);
+	// printf("LINE_free: %p\n", s1);
+	// printf("NEWLINE_mal: %p\n", temp);
+	free(s1);
 	if (!temp)
 		return (NULL);
-	free(s1);
 	return (temp);
 }
 
@@ -66,7 +62,7 @@ char	*read_file(char *line, char *buf, int fd)
 		if (line == NULL)
 			return (NULL);
 		if (ft_strchr(buf, '\n') != NULL && ft_strchr(buf, '\0') != NULL)
-			check = 0;
+			break ;
 	}
 	return (line);
 }
@@ -77,20 +73,38 @@ char	*ft_getline(t_list **lst_addr, int fd, char *buf)
 	t_list	*lst;
 
 	lst = *lst_addr;
-	if (lst->backup == NULL)
-		lst->backup = ft_strdup("");
-	line = ft_strdup(lst->backup);
-	line = read_file(line, buf, fd);
-	if (line == NULL || *line == '\0')
+	// printf("\nLST ADR :%p\n", lst);
+	// printf("\nSTART BACKUP :%p\n", lst->backup);
+	// printf("\nbackup : %s\n", lst->backup);
+	if (!lst->backup)
+	{
+		//printf("->Here<-\n");
+		//lst->backup = ft_strdup("");
+		line = (char *)calloc(1 , 1);
+		line = read_file(line, buf, fd);
+	}
+	else
+	{
+		line = ft_strdup(lst->backup);
+		line = read_file(line, buf, fd);
+	}
+	// printf("\n\nBUF_free: %p\n", buf);
+	// printf("NEWLINE_free: %p\n", line);
+	// printf("BACKUP_free: %p\n", lst->backup);
+	// printf("LST_free: %p\n", lst);
+	if (line == NULL || line[0] == '\0')
 	{
 		free(buf);
 		free(line);
 		free(lst->backup);
+			//lst->backup = NULL;
 		free(lst);
 		*lst_addr = NULL;
 		return (NULL);
 	}
+	//printf("\n-->Here<--\n");
 	free(lst->backup);
+	//lst->backup = NULL;
 	free(buf);
 	return (ft_extract_string(line, lst));
 }
@@ -105,11 +119,11 @@ char	*get_next_line(int fd)
 	buf = (char *)malloc(BUFFER_SIZE + 1);
 	if (!buf)
 		return (NULL);
+	//printf("BUF_mal: %p\n", buf);
 	while (1)
 	{
 		if (!lst)
 		{
-			//printf("new node\n");
 			lst = ft_newnode(&lst, fd);
 			if (!lst)
 			{
@@ -142,27 +156,31 @@ char	*get_next_line(int fd)
 // 	char	*file1 = "hello.txt";
 // 	char	*file2 = "empty.txt";
 // 	char	*file3 = "1char.txt";
+// 	char	*file4 = "giant_line.txt";
 // 	int		fd1;
 // 	int		fd2;
 // 	int		fd3;
+// 	int		fd4;
 
 // 	fd1 = open(file1, O_RDONLY);
 // 	if (fd1 == -1)
 // 		return (0);
 // 	fd2 = open(file2, O_RDONLY);
 // 	if (fd2 == -1)
-// 	{
-// 		printf("can't open files");
 // 		return (0);
-// 	}
 // 	fd3 = open(file3, O_RDONLY);
 // 	if (fd3 == -1)
-// 	{
-// 		printf("can't open files");
 // 		return (0);
-// 	}
-// 	printf("result : %s\n", get_next_line(fd3));
-// 	printf("result : %s\n", get_next_line(fd3));
+// 	fd4 = open(file4, O_RDONLY);
+// 	if (fd4 == -1)
+// 		return (0);
+
+// 	printf("--------\n");
+// 	printf("result : %s\n\n", get_next_line(fd3));
+// 	printf("--------\n");
+// 	printf("result : %s\n\n", get_next_line(fd3));
+// 	printf("--------\n");
+// 	printf("result : %s\n\n", get_next_line(fd3));
 // 	// printf("result : %s\n", get_next_line(fd2));
 // 	// printf("result : %s\n", get_next_line(fd2));
 // 	return (0);
