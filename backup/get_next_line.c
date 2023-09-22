@@ -1,32 +1,35 @@
 #include "get_next_line.h"
 
-void	ft_extract_backup(t_list *lst, char *read_line)
+//Check if lst is empty ?
+	//if it empty just create newnode
+	//if not doesn't nothing
+//We should use just one data structure and void every function
+	//to be handle with memmoory allocate
+
+void	ft_extract_content(t_list *lst, char *read_line, char *buf)
 {
 	size_t	i;
 	size_t	len_backup;
-	char	*temp;
 
-	i = 0;
-	//if reading is empty string or return Null does nothing
+	free(buf);
 	if (!read_line || !lst || *read_line == '\0')
 		return ;
+	i = 0;
 	while (read_line[i] != '\n' && read_line[i] != '\0')
 		i++;
 	i = i + (read_line[i] == '\n');
-	len_backup = ft_lstclear_strlen(read_line, 1, &lst) - i;
-	temp = (char *)ft_calloc(i + 1, 1);
-	if (!temp)
+	len_backup = ft_lstclear_strlen(&lst, read_line, 1) - i;
+	lst->new_line = (char *)ft_calloc(i + 1, 1);
+	if (!lst->new_line)
 		return ;
 	lst->backup = (char *)ft_calloc(len_backup + 1, 1);
 	if (!lst->backup)
 	{
-		free(temp);
+		free(lst->new_line);
 		return ;
 	}
-	ft_memmove(temp, read_line, i);
+	ft_memmove(lst->new_line, read_line, i);
 	ft_memmove(lst->backup, read_line + i, len_backup);
-	free(read_line);
-	lst->read_line = temp;
 }
 
 char	*ft_addcontent(char	*read_line, char *buf, t_list *lst)
@@ -35,8 +38,8 @@ char	*ft_addcontent(char	*read_line, char *buf, t_list *lst)
 	int		len_read_line;
 	int		len_buf;
 
-	len_read_line = ft_lstclear_strlen(read_line, 1, &lst);
-	len_buf = ft_lstclear_strlen(buf, 1, &lst);
+	len_read_line = ft_lstclear_strlen(&lst, read_line, 1);
+	len_buf = ft_lstclear_strlen(&lst, buf, 1);
 	temp = (char *)ft_calloc((len_read_line + len_buf + 1), 1);
 	if (!temp)
 	{
@@ -49,7 +52,7 @@ char	*ft_addcontent(char	*read_line, char *buf, t_list *lst)
 	return (temp);
 }
 
-void	ft_readline(t_list *lst, int fd)
+void	*ft_readline(t_list *lst, int fd, char *read_line)
 {
 	char	*buf;
 	int		rd_buf;
@@ -57,28 +60,26 @@ void	ft_readline(t_list *lst, int fd)
 	rd_buf = 1;
 	buf = (char *)malloc(BUFFER_SIZE);
 	if (!buf)
-		return ;
+		return (NULL);
 	while (rd_buf > 0)
 	{
 		rd_buf = read(fd, buf, BUFFER_SIZE);
 		if (rd_buf == -1)
 		{
 			free(buf);
-			return ;
+			return (NULL);
 		}
 		buf[rd_buf] = '\0';
-		if (*buf == '\0')
-			break ;
-		lst->read_line = ft_addcontent(lst->read_line, buf, lst);
+		read_line = ft_addcontent(read_line, buf, lst);
 		if (ft_strchr(buf, '\n') != NULL && ft_strchr(buf, '\0') != NULL)
 			break ;
 	}
-	ft_extract_backup(lst, lst->read_line);
-	free(buf);
-	return ;
+	ft_extract_content(lst , read_line, buf);
+	free(read_line);
+	return (lst->new_line);
 }
 
-t_list	*ft_backup_multifd(t_list *lst, int fd)
+char	*get_new_newline(t_list *lst, int fd, char *read_line)
 {
 	t_list	*current;
 
@@ -90,7 +91,7 @@ t_list	*ft_backup_multifd(t_list *lst, int fd)
 			current = ft_lstadd_back(&lst, fd);
 			if(!current)
 			{
-				ft_lstclear_strlen("", 0, &lst);
+				ft_lstclear_strlen(&lst, "", 0);
 				return (NULL);
 			}
 			break ;
@@ -99,18 +100,23 @@ t_list	*ft_backup_multifd(t_list *lst, int fd)
 			break ;
 		current = current->next;
 	}
-	current->read_line = current->backup;
-	ft_readline(current, fd);
-	//printf("\nAddr : %p | Backup : %s | Read line %s \n", current, current->backup, current->read_line);
-	return (current);
+	if (!ft_readline(current, fd, read_line) || current->new_line == NULL)
+	{
+		free(lst);
+		return (NULL);
+	}
+	return (current->new_line);
 }
 
 char	*get_next_line(int fd)
 {
 	static t_list	*lst = NULL;
-	t_list			*current;
+	char			*read_line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+		return (NULL);
+	read_line = ft_calloc(1, 1);
+	if (!read_line)
 		return (NULL);
 	if (!lst)
 	{
@@ -118,19 +124,15 @@ char	*get_next_line(int fd)
 		if (!lst)
 			return (NULL);
 	}
-	if (lst->read_line != NULL)
-	{
-		free(lst->read_line);
-		lst->read_line = NULL;
-	}
-	current = ft_backup_multifd(lst, fd);
-	if (current == NULL)
+	read_line = get_new_newline(lst, fd, read_line);
+	if (!read_line)
 		return (NULL);
-	if (current->read_line == NULL || *current->read_line == '\0')
-		return (NULL);
-	return (current->read_line);
+	return (read_line);
 }
-
+/*******/
+//New Idead
+//We have to start form backup file that should be good for anycase//
+/*******/
 int	main(void)
 {
 	char	*file1 = "hello.txt";
@@ -156,20 +158,14 @@ int	main(void)
 		return (0);
 
 	printf("--------\n");
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	// printf("result : %s\n\n\n\n", get_next_line(fd1));
-	printf("fd : 3 result : %s|\n\n", get_next_line(fd3));
-	printf("fd : 3 result : %s|\n\n", get_next_line(fd3));
-	// printf("result : %s\n\n", get_next_line(fd1));
+	printf("3 result : %s\n", get_next_line(fd1));
+	printf("3 result : %s\n", get_next_line(fd1));
 
+	// printf("2 result : %s\n\n", get_next_line(fd2));
+	// printf("1 result : %s\n\n", get_next_line(fd1));
+	// printf("2 result : %s\n\n", get_next_line(fd2));
+	// printf("--------\n");
 	// printf("result : %s\n\n", get_next_line(fd3));
-	// printf("result : %s\n\n", get_next_line(fd3));
-	// printf("result : %s\n\n", get_next_line(fd4));
 	// printf("--------\n");
 	// printf("result : %s\n\n", get_next_line(fd3));
 	return (0);
