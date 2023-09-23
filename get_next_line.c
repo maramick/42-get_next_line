@@ -7,18 +7,24 @@ void	ft_extract_backup(t_list *lst, char *read_line)
 	char	*temp;
 
 	i = 0;
-	printf("%p  ", lst);
-	printf("%p  ", read_line);
-	printf("%s\n", read_line);
 	if (!read_line || !lst || *read_line == '\0')
+	{
+		printf(" Here ");
 		return ;
+	}
 	while (read_line[i] != '\n' && read_line[i] != '\0')
 		i++;
 	i = i + (read_line[i] == '\n');
 	len_backup = ft_lstclear_strlen(read_line, 1, &lst) - i;
 	temp = (char *)ft_calloc(i + 1, 1);
 	if (!temp)
+	{
+		free(read_line);
+		lst->read_line = NULL;
+		printf(" t2 allo failed ");
 		return ;
+	}
+	printf("len backup = %zu\n", len_backup);
 	lst->backup = (char *)ft_calloc(len_backup + 1, 1);
 	if (!lst->backup)
 	{
@@ -28,6 +34,7 @@ void	ft_extract_backup(t_list *lst, char *read_line)
 	ft_memmove(temp, read_line, i);
 	ft_memmove(lst->backup, read_line + i, len_backup);
 	free(read_line);
+	read_line = NULL;
 	lst->read_line = temp;
 }
 
@@ -41,7 +48,10 @@ char	*ft_addcontent(char	*read_line, char *buf, t_list *lst)
 	len_buf = ft_lstclear_strlen(buf, 1, &lst);
 	temp = (char *)ft_calloc((len_read_line + len_buf + 1), 1);
 	if (!temp)
+	{
+		printf("t allo failed\n");
 		return (NULL);
+	}
 	ft_memmove(temp, read_line, len_read_line);
 	ft_memmove(temp + len_read_line, buf, len_buf);
 	free(read_line);
@@ -65,19 +75,21 @@ void	*ft_readline(t_list *lst, int fd)
 		rd_buf = read(fd, buf, BUFFER_SIZE);
 		if (rd_buf == -1)
 		{
+			printf(" read file error ");
 			free(buf);
 			return (NULL);
 		}
 		buf[rd_buf] = 0;
 		if (*buf == '\0')
 		{
-			printf("EOF ");
+			printf(" EOF ");
 			break ;
 		}
 		lst->read_line = ft_addcontent(lst->read_line, buf, lst);
 		if (ft_strchr(buf, '\n') != NULL && ft_strchr(buf, '\0') != NULL)
 			break ;
 	}
+	printf(" ->%s<-\n", lst->read_line);
 	ft_extract_backup(lst, lst->read_line);
 	free(buf);
 	return (lst);
@@ -101,9 +113,12 @@ t_list	*ft_backup_multifd(t_list *lst, int fd)
 			break ;
 		current = current->next;
 	}
+	printf("\n----------------------\n");
+	printf("string :: %s ", current->backup);
 	current->read_line = current->backup;
 	if (!ft_readline(current, fd))
 		return (NULL);
+	printf("\n----------------------\n");
 	return (current);
 }
 

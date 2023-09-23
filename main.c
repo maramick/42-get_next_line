@@ -40,7 +40,7 @@ int	main(void)
 	// printf("fd : 1 result : %s|\n\n", get_next_line(fd5));
 	// printf("fd : 1 result : %s|\n\n", get_next_line(fd5));
 
-	while (i < 100)
+	while (i < 2)
 	{
 		save = get_next_line(fd3);
 		printf("i : %d result : %s|\n", i, save);
