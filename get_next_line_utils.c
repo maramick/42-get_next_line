@@ -82,7 +82,6 @@ size_t	ft_lstclear_strlen(char *s, int mode, t_list **lst)
 		next = NULL;
 		while (current != NULL)
 		{
-			printf("freeing ...\n");
 			next = current->next;
 			free(current->backup);
 			free(current);

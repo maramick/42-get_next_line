@@ -6,7 +6,7 @@
 # include <limits.h>
 
 //These should delete
-# define BUFFER_SIZE 10000
+//# define BUFFER_SIZE 1
 # include <fcntl.h>
 # include <stdio.h>
 # include <string.h>

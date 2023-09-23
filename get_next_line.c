@@ -7,7 +7,9 @@ void	ft_extract_backup(t_list *lst, char *read_line)
 	char	*temp;
 
 	i = 0;
-	//if reading is empty string or return Null does nothing
+	printf("%p  ", lst);
+	printf("%p  ", read_line);
+	printf("%s\n", read_line);
 	if (!read_line || !lst || *read_line == '\0')
 		return ;
 	while (read_line[i] != '\n' && read_line[i] != '\0')
@@ -39,43 +41,46 @@ char	*ft_addcontent(char	*read_line, char *buf, t_list *lst)
 	len_buf = ft_lstclear_strlen(buf, 1, &lst);
 	temp = (char *)ft_calloc((len_read_line + len_buf + 1), 1);
 	if (!temp)
-	{
-		free(read_line);
 		return (NULL);
-	}
 	ft_memmove(temp, read_line, len_read_line);
 	ft_memmove(temp + len_read_line, buf, len_buf);
 	free(read_line);
+	read_line = NULL;
 	return (temp);
 }
 
-void	ft_readline(t_list *lst, int fd)
+void	*ft_readline(t_list *lst, int fd)
 {
 	char	*buf;
 	int		rd_buf;
+	// static int		check = 0;
+	// check++;
 
 	rd_buf = 1;
-	buf = (char *)malloc(BUFFER_SIZE);
+	buf = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
 	if (!buf)
-		return ;
+		return (NULL);
 	while (rd_buf > 0)
 	{
 		rd_buf = read(fd, buf, BUFFER_SIZE);
 		if (rd_buf == -1)
 		{
 			free(buf);
-			return ;
+			return (NULL);
 		}
-		buf[rd_buf] = '\0';
+		buf[rd_buf] = 0;
 		if (*buf == '\0')
+		{
+			printf("EOF ");
 			break ;
+		}
 		lst->read_line = ft_addcontent(lst->read_line, buf, lst);
 		if (ft_strchr(buf, '\n') != NULL && ft_strchr(buf, '\0') != NULL)
 			break ;
 	}
 	ft_extract_backup(lst, lst->read_line);
 	free(buf);
-	return ;
+	return (lst);
 }
 
 t_list	*ft_backup_multifd(t_list *lst, int fd)
@@ -88,11 +93,8 @@ t_list	*ft_backup_multifd(t_list *lst, int fd)
 		if (!current)
 		{
 			current = ft_lstadd_back(&lst, fd);
-			if(!current)
-			{
-				ft_lstclear_strlen("", 0, &lst);
+			if (!current)
 				return (NULL);
-			}
 			break ;
 		}
 		if (current->fd_id == fd)
@@ -100,8 +102,8 @@ t_list	*ft_backup_multifd(t_list *lst, int fd)
 		current = current->next;
 	}
 	current->read_line = current->backup;
-	ft_readline(current, fd);
-	//printf("\nAddr : %p | Backup : %s | Read line %s \n", current, current->backup, current->read_line);
+	if (!ft_readline(current, fd))
+		return (NULL);
 	return (current);
 }
 
@@ -111,7 +113,11 @@ char	*get_next_line(int fd)
 	t_list			*current;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	{
+		if (lst != NULL)
+			ft_lstclear_strlen("", 0, &lst);
 		return (NULL);
+	}
 	if (!lst)
 	{
 		lst = ft_lstadd_back(&lst, fd);
@@ -119,58 +125,12 @@ char	*get_next_line(int fd)
 			return (NULL);
 	}
 	if (lst->read_line != NULL)
-	{
-		free(lst->read_line);
 		lst->read_line = NULL;
-	}
 	current = ft_backup_multifd(lst, fd);
-	if (current == NULL)
+	if (!current || current->read_line == NULL || *current->read_line == '\0')
+	{
+		ft_lstclear_strlen("", 0, &lst);
 		return (NULL);
-	if (current->read_line == NULL || *current->read_line == '\0')
-		return (NULL);
+	}
 	return (current->read_line);
-}
-
-int	main(void)
-{
-	char	*file1 = "hello.txt";
-	char	*file2 = "empty.txt";
-	char	*file3 = "1char.txt";
-	char	*file4 = "giant_line.txt";
-	int		fd1;
-	int		fd2;
-	int		fd3;
-	int		fd4;
-
-	fd1 = open(file1, O_RDONLY);
-	if (fd1 == -1)
-		return (0);
-	fd2 = open(file2, O_RDONLY);
-	if (fd2 == -1)
-		return (0);
-	fd3 = open(file3, O_RDONLY);
-	if (fd3 == -1)
-		return (0);
-	fd4 = open(file4, O_RDONLY);
-	if (fd4 == -1)
-		return (0);
-
-	printf("--------\n");
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	printf("fd : 1 result : %s|\n\n", get_next_line(fd1));
-	// printf("result : %s\n\n\n\n", get_next_line(fd1));
-	printf("fd : 3 result : %s|\n\n", get_next_line(fd3));
-	printf("fd : 3 result : %s|\n\n", get_next_line(fd3));
-	// printf("result : %s\n\n", get_next_line(fd1));
-
-	// printf("result : %s\n\n", get_next_line(fd3));
-	// printf("result : %s\n\n", get_next_line(fd3));
-	// printf("result : %s\n\n", get_next_line(fd4));
-	// printf("--------\n");
-	// printf("result : %s\n\n", get_next_line(fd3));
-	return (0);
 }
