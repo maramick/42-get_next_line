@@ -9,7 +9,7 @@ void	ft_extract_backup(t_list *lst, char *read_line)
 	i = 0;
 	if (!read_line || !lst || *read_line == '\0')
 	{
-		printf(" Here ");
+		lst->backup = lst->read_line;
 		return ;
 	}
 	while (read_line[i] != '\n' && read_line[i] != '\0')
@@ -19,15 +19,18 @@ void	ft_extract_backup(t_list *lst, char *read_line)
 	temp = (char *)ft_calloc(i + 1, 1);
 	if (!temp)
 	{
+		printf("addr read_line %p\n", read_line);
+		printf("addr lst->read_line %p\n", lst->read_line);
+		printf("addr lst->backup %p\n", lst->backup);
 		free(read_line);
 		lst->read_line = NULL;
-		printf(" t2 allo failed ");
+		printf("3 t2 allo failed ");
 		return ;
 	}
-	printf("len backup = %zu\n", len_backup);
 	lst->backup = (char *)ft_calloc(len_backup + 1, 1);
 	if (!lst->backup)
 	{
+		printf("3 backup allo failed ");
 		free(temp);
 		return ;
 	}
@@ -35,6 +38,7 @@ void	ft_extract_backup(t_list *lst, char *read_line)
 	ft_memmove(lst->backup, read_line + i, len_backup);
 	free(read_line);
 	read_line = NULL;
+	printf("//3 PASS//");
 	lst->read_line = temp;
 }
 
@@ -49,7 +53,7 @@ char	*ft_addcontent(char	*read_line, char *buf, t_list *lst)
 	temp = (char *)ft_calloc((len_read_line + len_buf + 1), 1);
 	if (!temp)
 	{
-		printf("t allo failed\n");
+		printf("2 t allo failed\n");
 		return (NULL);
 	}
 	ft_memmove(temp, read_line, len_read_line);
@@ -82,15 +86,22 @@ void	*ft_readline(t_list *lst, int fd)
 		buf[rd_buf] = 0;
 		if (*buf == '\0')
 		{
-			printf(" EOF ");
+			printf("1 EOF\n");
 			break ;
 		}
 		lst->read_line = ft_addcontent(lst->read_line, buf, lst);
 		if (ft_strchr(buf, '\n') != NULL && ft_strchr(buf, '\0') != NULL)
+		{
+			printf("//2 PASS//");
 			break ;
+		}
 	}
-	printf(" ->%s<-\n", lst->read_line);
+
+	//printf(" ->%s<-\n", lst->read_line);
 	ft_extract_backup(lst, lst->read_line);
+	printf("\n4 %p\n", lst);
+	printf("4 %p\n", lst->read_line);
+	printf("4 %p\n", lst->backup);
 	free(buf);
 	return (lst);
 }
@@ -113,12 +124,16 @@ t_list	*ft_backup_multifd(t_list *lst, int fd)
 			break ;
 		current = current->next;
 	}
-	printf("\n----------------------\n");
-	printf("string :: %s ", current->backup);
+	//printf("\n----------------------\n");
+	//printf("string :: %s ", current->backup);
 	current->read_line = current->backup;
-	if (!ft_readline(current, fd))
-		return (NULL);
-	printf("\n----------------------\n");
+	ft_readline(current, fd);
+	// if (!ft_readline(current, fd))
+	// {
+	// 	printf("read failed all");
+	// 	return (NULL);
+	// }
+	//printf("\n----------------------\n");
 	return (current);
 }
 
@@ -127,14 +142,21 @@ char	*get_next_line(int fd)
 	static t_list	*lst = NULL;
 	t_list			*current;
 
+	printf("||new call||\n");
+	printf("lst addr : %p\n", lst);
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 	{
+		printf("1 Here");
 		if (lst != NULL)
+		{
+			printf("2 Here");
 			ft_lstclear_strlen("", 0, &lst);
+		}
 		return (NULL);
 	}
 	if (!lst)
 	{
+		printf("Here newnode");
 		lst = ft_lstadd_back(&lst, fd);
 		if (!lst)
 			return (NULL);
@@ -142,8 +164,14 @@ char	*get_next_line(int fd)
 	if (lst->read_line != NULL)
 		lst->read_line = NULL;
 	current = ft_backup_multifd(lst, fd);
-	if (!current || current->read_line == NULL || *current->read_line == '\0')
+	if (!current)
+		return (NULL);
+	if (current->read_line == NULL || *current->read_line == '\0')
 	{
+		printf("::freeing ...::\n");
+		printf("::%p::\n", current);
+		printf("::%p::\n", current->read_line);
+		printf("::%p::\n", current->backup);
 		ft_lstclear_strlen("", 0, &lst);
 		return (NULL);
 	}

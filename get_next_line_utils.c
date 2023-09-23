@@ -83,8 +83,13 @@ size_t	ft_lstclear_strlen(char *s, int mode, t_list **lst)
 		while (current != NULL)
 		{
 			next = current->next;
-			free(current->backup);
+			printf("start freeing  ");
+			printf("freeing in addr backup %p\n", current->backup);
+			if (current->backup != NULL)
+				free(current->backup);
+			printf("freed back  ");
 			free(current);
+			printf("freed node");
 			current = next;
 		}
 		*lst = NULL;
