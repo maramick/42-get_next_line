@@ -6,26 +6,28 @@
 # include <limits.h>
 
 //These should delete
-//# define BUFFER_SIZE 1
+//# define BUFFER_SIZE 7
 # include <fcntl.h>
 # include <stdio.h>
 # include <string.h>
-# include <stdint.h>
 /////////////////////
 
-typedef struct s_list
+typedef struct s_buflist
 {
-	char			*backup;
-	char			*read_line;
-	int				fd_id;
-	struct s_list	*next;
-}					t_list;
+	char				*buffer;
+	struct s_buflist	*next;
+}					t_buflist;
 
-char	*ft_strchr(const char *s, int c);
-void	*ft_memmove(void *dst, const void *src, size_t len);
-char	*ft_calloc(size_t count, size_t size);
-t_list	*ft_lstadd_back(t_list **lst, int fd);
-size_t	ft_lstclear_strlen(char *s, int mode, t_list **lst);
-char	*get_next_line(int fd);
+typedef struct s_fdlist
+{
+	int				fd_id;
+	t_buflist		*read_data;
+	struct s_fdlist	*next;
+}					t_fdlist;
+
+char		*ft_strchr(const char *s, int c);
+t_fdlist	*ft_addfd_back(t_fdlist **lst, int fd);
+t_buflist	*ft_newnode(void *content);
+char		*get_next_line(int fd);
 
 #endif
