@@ -1,40 +1,60 @@
 #include "get_next_line.h"
 //joining string
-	//start_node possibility
-		//\nABC -> cut \n and start with ABC
-		//AB\nC -> cut AB\n and start with C
-		//ABC\n -> start with new node
-		//\nABC\n -> cut \n and start with ABC\n
-		//ABC\0 -> start with this node and clear list
-		//\0 -> return NULL
-	//end_node possibility
-		//\nABC -> contacenate only \n
-		//AB\nC -> contacenate only AB\n
-		//ABC\n -> contacenate this node
-		//\nABC\n -> contacenate only \n
-		//ABC\0 -> contacenate this node and clear list
-		//\0 -> contacenate this node and clear list
+	//start_node possibility check until find newline or EOF
+		//\nABC ->
+		//AB\nC ->
+		//ABC\n ->
+		//\nABC\n ->
+		//ABC\0 ->
+		//EOF IS -> happen when starting buffer with '\0'
+	//end_node possibility check until find newline or EOF
+		//\nABC ->
+		//AB\nC ->
+		//ABC\n ->
+		//\nABC\n ->
+		//ABC\0 ->
+		//EOF IS -> happen when starting buffer with '\0'
 //ideal is
 //check start node
 //join buffer loop
+	//idea is count all character in datastructure
+	//malloc all character
+	//memmove all character
 //check end node
-//join end node
+//join end node and set pointer to newbegining
 //return value
+
 char	*ft_join_buffer(t_buflist *start_node, t_buflist *end_node)
 {
-	char		*str;
+	//char		*str = NULL;
 	size_t		i;
+	size_t		count_char;
 
-	str = NULL;
-	i = 0;
-	printf("contacenating %p->%p\n", start_node, end_node);
-	//check start node
-	if (start_node->buffer[i] == '\0')
+	printf("starting : %s\n", start_node->buffer);
+	count_char = 0;
+	if (start_node->buffer[0] == '\0')
+	{
+		/*reaching EOF*/
+		/*This should be clear all node and destroy struct of this current fd*/
 		return (NULL);
-	while (start_node->buffer[i] != '\0' && start_node->buffer[i] != '\n')
-		i++;
-
-	return (str);
+	}
+	while (start_node != NULL)
+	{
+		i = 0;
+		while(start_node->buffer[i] != '\n' && start_node->buffer[i] != '\0')
+		{
+			count_char++;
+			i++;
+		}
+		if (start_node->buffer[i] == '\0')
+			start_node = start_node->next;
+		else if (start_node->buffer[i] == '\n')
+			break;
+	}
+	end_node = start_node + i;
+	printf("ending |%s|\n", end_node->buffer);
+	printf("total character : %zu\n", count_char);
+	return (NULL);
 }
 
 void	*ft_readline(t_buflist *node, int fd)
@@ -53,6 +73,8 @@ void	*ft_readline(t_buflist *node, int fd)
 			return (NULL);
 		}
 		node->buffer[rd_buf] = 0;
+		if (node->buffer[0] == '\0')
+			break;
 		node->next = ft_newnode();
 		//node allocate failed
 		//node->next = NULL;
@@ -99,11 +121,7 @@ char	*get_next_line(int fd)
 	char				*new_line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
-	{
-		if (!lst)
-			/*clear list*/
 		return (NULL);
-	}
 	if (!lst)
 		lst = ft_addfd_back(&lst, fd);
 	//starter lst allocate failed check
