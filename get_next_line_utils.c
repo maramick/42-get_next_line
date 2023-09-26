@@ -1,5 +1,24 @@
 #include "get_next_line.h"
 
+void	ft_clearnode(t_buflist **node)
+{
+	t_buflist	*current;
+	t_buflist	*next;
+
+	if (!node)
+		return ;
+	current = *node;
+	next = NULL;
+	while (current != NULL)
+	{
+		next = current->next;
+		free(current->buffer);
+		current->buffer = NULL;
+		current = next;
+	}
+	*node = NULL;
+}
+
 // char	*ft_strdup(char *s)
 // {
 // 	/*add function*/

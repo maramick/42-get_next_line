@@ -34,9 +34,9 @@ int	main(void)
 	if (fd6 == -1)
 		return (0);
 
-	get_next_line(fd1);
-	get_next_line(fd1);
-	// get_next_line(fd2);
+	printf("%s\n", get_next_line(fd1));
+	printf("%s\n", get_next_line(fd1));
+	//printf("%s\n", get_next_line(fd2));
 	// get_next_line(fd3);
 
 	return (0);
