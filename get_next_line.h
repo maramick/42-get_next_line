@@ -25,10 +25,11 @@ typedef struct s_fdlist
 	struct s_fdlist	*next;
 }					t_fdlist;
 
+char		*ft_strdup(char *s);
 void		ft_clearnode(t_buflist **node);
 char		*ft_strchr(const char *s, int c);
 t_fdlist	*ft_addfd_back(t_fdlist **lst, int fd);
-t_buflist	*ft_newnode(void *content);
+t_buflist	*ft_newnode(void);
 char		*get_next_line(int fd);
 
 #endif

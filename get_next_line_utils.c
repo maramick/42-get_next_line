@@ -19,11 +19,6 @@ void	ft_clearnode(t_buflist **node)
 	*node = NULL;
 }
 
-// char	*ft_strdup(char *s)
-// {
-// 	/*add function*/
-// }
-
 char	*ft_strchr(const char *s, int c)
 {
 	size_t	i;
@@ -53,7 +48,13 @@ t_fdlist	*ft_addfd_back(t_fdlist **lst, int fd)
 	if (!new_node)
 		return (NULL);
 	new_node->fd_id = fd;
-	new_node->read_data = NULL;
+	new_node->read_data = ft_newnode();
+	if (!new_node->read_data)
+	{
+		free(new_node);
+		return (NULL);
+	}
+	//add back process
 	new_node->next = NULL;
 	if (*lst == NULL)
 	{
@@ -69,16 +70,20 @@ t_fdlist	*ft_addfd_back(t_fdlist **lst, int fd)
 
 //don't forget to clear buffer list
 
-t_buflist	*ft_newnode(void *content)
+t_buflist	*ft_newnode(void)
 {
 	t_buflist	*node;
 
 	node = malloc(sizeof(t_buflist));
 	if (node == NULL)
 		return (NULL);
-	node->buffer = strdup(content);
+	node->buffer = (char *)malloc(BUFFER_SIZE + 1);
 	if (node->buffer == NULL)
+	{
+		free(node);
 		return (NULL);
+	}
+	node->buffer[0] = 0;
 	node->next = NULL;
 	return (node);
 }
