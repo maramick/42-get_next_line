@@ -1,9 +1,9 @@
 #include "get_next_line.h"
 
-char	*ft_strdup(char *s)
-{
-	/*add function*/
-}
+// char	*ft_strdup(char *s)
+// {
+// 	/*add function*/
+// }
 
 char	*ft_strchr(const char *s, int c)
 {
@@ -58,6 +58,8 @@ t_buflist	*ft_newnode(void *content)
 	if (node == NULL)
 		return (NULL);
 	node->buffer = strdup(content);
+	if (node->buffer == NULL)
+		return (NULL);
 	node->next = NULL;
 	return (node);
 }

@@ -35,6 +35,7 @@ int	main(void)
 		return (0);
 
 	get_next_line(fd1);
+	get_next_line(fd1);
 	// get_next_line(fd2);
 	// get_next_line(fd3);
 
