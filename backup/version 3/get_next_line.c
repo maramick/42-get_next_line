@@ -24,69 +24,79 @@
 //join end node and set pointer to newbegining
 //return value
 
-char	*ft_join_buffer(t_buflist *start_node, t_buflist *end_node)
+size_t	ft_total_char(t_buflist *start_node)
 {
-	//char		*str = NULL;
-	size_t		i;
-	size_t		count_char;
+	size_t	i;
+	size_t	total_char;
 
-	printf("starting : %s\n", start_node->buffer);
-	count_char = 0;
-	if (start_node->buffer[0] == '\0')
-	{
-		/*reaching EOF*/
-		/*This should be clear all node and destroy struct of this current fd*/
-		return (NULL);
-	}
+	total_char = 0;
 	while (start_node != NULL)
 	{
 		i = 0;
-		while(start_node->buffer[i] != '\n' && start_node->buffer[i] != '\0')
+		while(start_node->buffer[i] != '\0')
 		{
-			count_char++;
+			total_char++;
 			i++;
+			if (start_node->buffer[i - 1] == '\n')
+				break;
 		}
-		if (start_node->buffer[i] == '\0')
-			start_node = start_node->next;
-		else if (start_node->buffer[i] == '\n')
+		if (start_node->buffer[i - 1] == '\n')
 			break;
+		start_node = start_node->next;
 	}
-	end_node = start_node + i;
-	printf("ending |%s|\n", end_node->buffer);
-	printf("total character : %zu\n", count_char);
-	return (NULL);
+	return (total_char);
 }
 
-void	*ft_readline(t_buflist *node, int fd)
+char	*ft_join_buffer(t_buflist *start_node)
+{
+	char			*line;
+	size_t			i;
+	size_t			j;
+
+	line = malloc(ft_total_char(start_node) + 1);
+	if (!line)
+		return (NULL);
+	i = 0;
+	while (start_node && start_node->buffer)
+	{
+		j = 0;
+		while ((start_node->buffer)[j] && (i == 0 || line[i - 1] != '\n'))
+			line[i++] = (start_node->buffer)[j++];
+		start_node = start_node->next;
+	}
+	line[i] = '\0';
+	return (line);
+}
+
+void	*ft_readline(t_buflist *node, t_buflist *begin, int fd)
 {
 	int		rd_buf;
 
 	rd_buf = 1;
+	if (begin && begin->buffer[0] == '\n')
+		return (node);
+	if (begin != NULL && begin->buffer[0] != '\0')
+	{
+		begin->next = ft_newnode();
+		if (!begin->next)
+			return (NULL);
+		node = begin->next;
+	}
 	while (rd_buf > 0 && node != NULL)
 	{
 		rd_buf = read(fd, node->buffer, BUFFER_SIZE);
-		//checking read failed
-		//rd_buf = -1;
 		if (rd_buf == -1)
-		{
-			ft_clearnode(&node);
 			return (NULL);
-		}
 		node->buffer[rd_buf] = 0;
-		if (node->buffer[0] == '\0')
-			break;
-		node->next = ft_newnode();
-		//node allocate failed
-		//node->next = NULL;
-		if (!node->next)
-		{
-			ft_clearnode(&node);
-			return (NULL);
-		}
 		if (ft_strchr(node->buffer, '\n') != NULL && ft_strchr(node->buffer, '\0') != NULL)
 			break ;
+		node->next = ft_newnode();
+		if (!node->next)
+			return (NULL);
 		node = node->next;
 	}
+	if (begin->buffer[0] == '\0')
+		return (NULL);
 	return (node);
 }
 
@@ -121,20 +131,23 @@ char	*get_next_line(int fd)
 	char				*new_line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	{
+		/*we have to clear the current fd list*/
 		return (NULL);
+	}
 	if (!lst)
 		lst = ft_addfd_back(&lst, fd);
-	//starter lst allocate failed check
-	//lst = NULL;
 	if (!lst)
 		return (NULL);
 	current_fd = ft_get_startfd(lst, fd);
 	if (!current_fd)
 		return (NULL);
 	begin_read = current_fd->read_data;
-	current_fd->read_data = ft_readline(begin_read, fd);
-	if (!current_fd->read_data)
-		return (NULL);
-	new_line = ft_join_buffer(begin_read, current_fd->read_data);
+	if (ft_readline(begin_read, begin_read, fd))
+		new_line = ft_join_buffer(begin_read);
+	else
+		new_line = NULL;
+	ft_clearnode(begin_read, current_fd);
+	lst = clean_fd_list(lst, current_fd);
 	return (new_line);
 }

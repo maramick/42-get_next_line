@@ -1,22 +1,53 @@
 #include "get_next_line.h"
 
-void	ft_clearnode(t_buflist **node)
+t_fdlist	*clean_fd_list(t_fdlist *fd_list, t_fdlist *c_fd)
 {
-	t_buflist	*current;
+	t_fdlist	*tmp;
+
+	if (!((c_fd->read_data->buffer)[0]))
+	{
+		free(c_fd->read_data->buffer);
+		free(c_fd->read_data);
+		if (fd_list == c_fd)
+			fd_list = fd_list->next;
+		else
+		{
+			tmp = fd_list;
+			while (tmp->next && tmp->next != c_fd)
+				tmp = tmp->next;
+			if (tmp->next)
+				tmp->next = tmp->next->next;
+		}
+		free(c_fd);
+	}
+	return (fd_list);
+}
+
+void	ft_clearnode(t_buflist *current, t_fdlist *current_fd)
+{
+	size_t			i;
+	size_t			j;
 	t_buflist	*next;
 
-	if (!node)
-		return ;
-	current = *node;
-	next = NULL;
-	while (current != NULL)
+	while (current->next)
 	{
 		next = current->next;
 		free(current->buffer);
-		current->buffer = NULL;
+		free(current);
 		current = next;
+		current_fd->read_data = next;
 	}
-	*node = NULL;
+	i = 0;
+	while ((current->buffer)[i])
+	{
+		i++;
+		if ((current->buffer)[i - 1] == '\n')
+			break ;
+	}
+	j = 0;
+	while ((current->buffer)[i])
+		(current->buffer)[j++] = (current->buffer)[i++];
+	(current->buffer)[j] = '\0';
 }
 
 char	*ft_strchr(const char *s, int c)

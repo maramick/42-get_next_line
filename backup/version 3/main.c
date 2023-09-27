@@ -2,7 +2,7 @@
 
 int	main(void)
 {
-	char	*file1 = "./data/hello.txt";
+	char	*file1 = "./data/multiple_line_no_nl";
 	char	*file2 = "./data/empty.txt";
 	char	*file3 = "./data/1char.txt";
 	char	*file4 = "./data/giant_line.txt";
@@ -14,6 +14,7 @@ int	main(void)
 	int		fd4;
 	int		fd5;
 	int		fd6;
+	char	*save;
 
 	fd1 = open(file1, O_RDONLY);
 	if (fd1 == -1)
@@ -34,10 +35,31 @@ int	main(void)
 	if (fd6 == -1)
 		return (0);
 
+	save = NULL;
+	if(save)
+
+	// save = get_next_line(fd1);
+	// printf("\nfinal result : %s|\n", save);
+	// free(save);
+	// save = get_next_line(fd1);
+	// printf("\nfinal result : %s|\n", save);
+	// free(save);
+	// save = get_next_line(fd1);
+	// printf("\nfinal result : %s|\n", save);
+	// free(save);
+	// save = get_next_line(fd1);
+	// printf("\nfinal result : %s|\n", save);
+	// free(save);
+	// save = get_next_line(fd1);
+	// printf("\nfinal result : %s|\n", save);
+	// free(save);
+	// save = get_next_line(fd1);
+	// printf("\nfinal result : %s|\n", save);
+	// free(save);
 	printf("%s\n", get_next_line(fd1));
 	printf("%s\n", get_next_line(fd1));
-	//printf("%s\n", get_next_line(fd2));
-	// get_next_line(fd3);
+	printf("%s\n", get_next_line(fd1));
+
 
 	return (0);
 }

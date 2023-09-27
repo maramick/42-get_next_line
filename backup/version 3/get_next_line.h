@@ -25,8 +25,9 @@ typedef struct s_fdlist
 	struct s_fdlist	*next;
 }					t_fdlist;
 
-char		*ft_strdup(char *s);
-void		ft_clearnode(t_buflist **node);
+int			end_of_line(char *content);
+t_fdlist	*clean_fd_list(t_fdlist *fd_list, t_fdlist *c_fd);
+void		ft_clearnode(t_buflist *current, t_fdlist *current_fd);
 char		*ft_strchr(const char *s, int c);
 t_fdlist	*ft_addfd_back(t_fdlist **lst, int fd);
 t_buflist	*ft_newnode(void);
