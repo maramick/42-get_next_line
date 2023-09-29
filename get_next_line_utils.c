@@ -21,7 +21,7 @@ t_list	*ft_clearnode_eof(t_list *lst)
 	return (lst);
 }
 
-size_t	ft_strlen_nl(char *s, int mode)
+size_t	ft_strlen_nl(char *s, size_t mode)
 {
 	size_t	count;
 
@@ -44,7 +44,7 @@ size_t	ft_strlen_nl(char *s, int mode)
 	}
 	return (count);
 }
-void	ft_update_backup(t_list *c_lst)
+void	*ft_update_backup(t_list *c_lst)
 {
 	char	*temp;
 	char	*current;
@@ -57,7 +57,7 @@ void	ft_update_backup(t_list *c_lst)
 	count_newmem = ft_strlen_nl(current, 1);
 	temp = (char *)malloc(count_newmem + 1);
 	if (!temp)
-		return ;
+		return (NULL);
 	i = 0;
 	while (current[i] != '\0')
 	{
@@ -67,6 +67,7 @@ void	ft_update_backup(t_list *c_lst)
 	temp[i] = '\0';
 	free(c_lst->data);
 	c_lst->data = temp;
+	return (temp);
 }
 
 int	ft_check_read(char *s)

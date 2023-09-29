@@ -36,7 +36,7 @@ char	*ft_join_string(char *old_str, char *buf)
 	i = 0;
 	j = 0;
 	temp = (char *)malloc((ft_strlen_nl(old_str, 1) + ft_strlen_nl(buf, 1)) + 1);
-	if (temp != NULL && 0)
+	if (temp != NULL)
 	{
 		while (old_str[i] != '\0')
 		{
@@ -63,7 +63,11 @@ void	ft_readline(int fd, t_list *lst)
 	rd = 1;
 	buf = (char *)malloc(BUFFER_SIZE + 1);
 	if (!buf)
+	{
+		free(lst->data);
+		lst->data = NULL;
 		return ;
+	}
 	while (1)
 	{
 		rd = read(fd, buf, BUFFER_SIZE);
@@ -122,11 +126,35 @@ char	*get_next_line(int fd)
 	if (!lst)
 		lst = c_lst;
 	ft_readline(fd, c_lst);
+	//if join failed or buf allocated failed
+	if (!c_lst->data)
+	{
+		free(c_lst);
+		lst = NULL;
+		return (NULL);
+	}
 	new_line = ft_strcpy_nl(c_lst);
-	//printf("strcpy_nl : %s", new_line);
+	//if join failed or buf allocated failed
+	if (!new_line)
+	{
+		free(c_lst->data);
+		free(c_lst);
+		lst = NULL;
+		return (NULL);
+	}
 	if (c_lst->data[0] == '\0')
 		lst = ft_clearnode_eof(c_lst);
 	else if (c_lst->data[0] != '\0')
-		ft_update_backup(c_lst);
+	{
+		//if backup failed
+		if(!ft_update_backup(c_lst))
+		{
+			free(new_line);
+			free(c_lst->data);
+			free(c_lst);
+			lst = NULL;
+			return (NULL);
+		}
+	}
 	return (new_line);
 }
