@@ -6,8 +6,6 @@ char	*ft_strcpy_nl(t_list *lst)
 	size_t	i;
 	size_t	memory;
 
-	if (!lst)
-		return (NULL);
 	i = 0;
 	memory = ft_strlen_nl(lst->data, 2);
 	if (memory == 0)
@@ -21,11 +19,11 @@ char	*ft_strcpy_nl(t_list *lst)
 		i++;
 	}
 	if (lst->data[i] == '\n')
-		new_line[i++] = '\n';
+	{
+		new_line[i] = '\n';
+		i++;
+	}
 	new_line[i] = '\0';
-	lst = ft_update_backup(lst, new_line);
-	if (!lst)
-		return (NULL);
 	return (new_line);
 }
 
@@ -37,7 +35,7 @@ char	*ft_join_string(char *old_str, char *buf)
 
 	i = 0;
 	j = 0;
-	temp = ft_checkread_malloc_t(old_str, buf, 2);
+	temp = (char *)malloc((ft_strlen_nl(old_str, 1) + ft_strlen_nl(buf, 1)) + 1);
 	if (temp != NULL)
 	{
 		while (old_str[i] != '\0')
@@ -57,7 +55,7 @@ char	*ft_join_string(char *old_str, char *buf)
 	return (temp);
 }
 
-t_list	*ft_readline(int fd, t_list *lst)
+void	*ft_readline(int fd, t_list *lst)
 {
 	char	*buf;
 	int		rd;
@@ -65,24 +63,25 @@ t_list	*ft_readline(int fd, t_list *lst)
 	rd = 1;
 	buf = (char *)malloc(BUFFER_SIZE + 1);
 	if (!buf)
+	{
+		// free(lst->data);
+		// lst->data = NULL;
 		return (NULL);
+	}
 	while (1)
 	{
 		rd = read(fd, buf, BUFFER_SIZE);
 		if (rd == -1)
-			break ;
+			break;
 		buf[rd] = 0;
 		lst->data = ft_join_string(lst->data, buf);
 		if (!lst->data)
-		{
-			free(buf);
-			return (NULL);
-		}
-		if (!ft_checkread_malloc_t(lst->data, buf, 1))
-			break ;
+			break;
+		if (ft_check_read(buf) == 0)
+			break;
 	}
 	free(buf);
-	return (lst);
+	return (lst->data);
 }
 
 t_list	*ft_current_fd(int fd, t_list *lst)
@@ -97,10 +96,10 @@ t_list	*ft_current_fd(int fd, t_list *lst)
 			current = ft_newnode(fd, &lst);
 			if (!current)
 				return (NULL);
-			break ;
+			break;
 		}
 		if (current->fd_id == fd)
-			break ;
+			break;
 		current = current->next;
 	}
 	return (current);
@@ -115,7 +114,10 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 	{
 		if (fd > 0 && lst)
-			lst = ft_clearnode_eof(ft_current_fd(fd, lst));
+		{
+			c_lst = ft_current_fd(fd, lst);
+			lst = ft_clearnode_eof(c_lst);
+		}
 		return (NULL);
 	}
 	c_lst = ft_current_fd(fd, lst);
@@ -123,11 +125,27 @@ char	*get_next_line(int fd)
 		return (NULL);
 	if (!lst)
 		lst = c_lst;
-	new_line = ft_strcpy_nl(ft_readline(fd, c_lst));
+	if (!ft_readline(fd, c_lst))
+	{
+		lst = ft_clearnode_eof(c_lst);
+		return (NULL);
+	}
+	new_line = ft_strcpy_nl(c_lst);
 	if (!new_line)
 	{
 		lst = ft_clearnode_eof(c_lst);
 		return (NULL);
+	}
+	if (c_lst->data[0] == '\0')
+		lst = ft_clearnode_eof(c_lst);
+	else if (c_lst->data[0] != '\0')
+	{
+		if(!ft_update_backup(c_lst))
+		{
+			free(new_line);
+			lst = ft_clearnode_eof(c_lst);
+			return (NULL);
+		}
 	}
 	return (new_line);
 }
