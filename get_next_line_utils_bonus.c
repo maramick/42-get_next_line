@@ -1,37 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pvudthic <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/03 15:34:26 by pvudthic          #+#    #+#             */
-/*   Updated: 2023/10/03 15:34:27 by pvudthic         ###   ########.fr       */
+/*   Created: 2023/10/03 15:34:35 by pvudthic          #+#    #+#             */
+/*   Updated: 2023/10/03 15:35:51 by pvudthic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
-t_list	*ft_clearnode_eof(t_list *lst)
+t_list	*ft_clearnode_sortlst(t_list *lst, int fd)
 {
-	t_list	*temp;
+	t_list	*current;
+	t_list	*prev;
 
-	if (lst->data != NULL)
+	current = lst;
+	prev = lst;
+	if (lst->fd_id == fd)
+		lst = lst->next;
+	while (current != NULL)
 	{
-		free(lst->data);
-		lst->data = NULL;
-	}
-	lst->fd_id = 0;
-	if (lst->next != NULL)
-	{
-		temp = lst->next;
-		free(lst);
-		lst = temp;
-	}
-	else if (lst->next == NULL)
-	{
-		free(lst);
-		lst = NULL;
+		if (current->fd_id == fd)
+		{
+			prev->next = current->next;
+			if (current->data != NULL)
+			{
+				free(current->data);
+				current->data = NULL;
+			}
+			free(current);
+			current = NULL;
+			break ;
+		}
+		prev = current;
+		current = current->next;
 	}
 	return (lst);
 }

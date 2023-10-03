@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pvudthic <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/03 15:33:22 by pvudthic          #+#    #+#             */
-/*   Updated: 2023/10/03 15:33:25 by pvudthic         ###   ########.fr       */
+/*   Created: 2023/10/03 15:33:55 by pvudthic          #+#    #+#             */
+/*   Updated: 2023/10/03 15:33:56 by pvudthic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*ft_strcpy_nl(t_list *lst)
 {
@@ -127,7 +127,7 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 	{
 		if (fd > 0 && lst)
-			lst = ft_clearnode_eof(ft_current_fd(fd, lst));
+			lst = ft_clearnode_sortlst(lst, fd);
 		return (NULL);
 	}
 	c_lst = ft_current_fd(fd, lst);
@@ -138,7 +138,7 @@ char	*get_next_line(int fd)
 	new_line = ft_strcpy_nl(ft_readline(fd, c_lst));
 	if (!new_line)
 	{
-		lst = ft_clearnode_eof(c_lst);
+		lst = ft_clearnode_sortlst(lst, fd);
 		return (NULL);
 	}
 	return (new_line);

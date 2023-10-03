@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pvudthic <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/03 15:33:43 by pvudthic          #+#    #+#             */
-/*   Updated: 2023/10/03 15:50:32 by pvudthic         ###   ########.fr       */
+/*   Created: 2023/10/03 15:34:06 by pvudthic          #+#    #+#             */
+/*   Updated: 2023/10/03 15:50:34 by pvudthic         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GET_NEXT_LINE_BONUS_H
+# define GET_NEXT_LINE_BONUS_H
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 42
@@ -28,7 +28,7 @@ typedef struct s_list
 	struct s_list	*next;
 }					t_list;
 
-t_list	*ft_clearnode_eof(t_list *lst);
+t_list	*ft_clearnode_sortlst(t_list *lst, int fd);
 t_list	*ft_update_backup(t_list *c_lst, char *new_line);
 size_t	ft_strlen_nl(char *s, size_t mode);
 char	*ft_checkread_malloc_t(char *old_str, char *buf, int mode);
